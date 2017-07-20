@@ -22,36 +22,33 @@ import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
 /**
- * Naver 검색 api에서 도서 상세 내용을 가져오는 class 상세 검색은 책 제목(d_titl), 저자명(d_auth),
- * 목차(d_cont), ISBN(d_isbn), 출판사(d_publ) 5개 항목 중에서 1개 이상 값을 입력해야 함. 참고 site url
- * : https://developers.naver.com/docs/search/book/
+ * Naver 검색 api에서 도서 상세 내용을 가져오는 class
+ * 상세 검색은 책 제목(d_titl), 저자명(d_auth), 목차(d_cont), ISBN(d_isbn), 출판사(d_publ) 5개 항목 중에서 1개 이상 값을 입력해야 함.
+ * 참고 site url = https://developers.naver.com/docs/search/book/
  */
 public class AccessBookApi {
 
 	private final int RESULT_NUMBER = 10;
-	private String[] resultList = new String[RESULT_NUMBER];
 
-	public AccessBookApi() {
+	public void test() {
 		System.out.println("accessSimple(이은선)");
-		accessSimple("이은선");
+		System.out.println(Arrays.toString(accessSimple("이은선")));
 
 		System.out.println("\n\nsearchByTitle(수학귀신)");
-		String result = Arrays.toString(searchByTitle("수학귀신"));
-		System.out.println("\nprintingout the array I got");
-		System.out.println(result);
+		System.out.println(Arrays.toString(searchByTitle("수학귀신")));
 
 		System.out.println("\n\nsearchByAuthor(한스 마그누스 엔첸스베르거)");
-		searchByAuthor("한스 마그누스 엔첸스베르거");
+		System.out.println(Arrays.toString(searchByAuthor("한스 마그누스 엔첸스베르거")));
 
 		System.out.println("\n\nsearchByContents(첫 번째 밤)");
-		searchByContents("첫 번째 밤");
+		System.out.println(Arrays.toString(searchByContents("첫 번째 밤")));
 
 		System.out.println("\n\nsearchByIsbn(9788949190013)");
-		searchByIsbn("9788949190013");
+		System.out.println(Arrays.toString(searchByIsbn("9788949190013")));
 	}
 
 	public static void main(String[] args) {
-		new AccessBookApi();
+		new AccessBookApi().test();
 	}
 
 	public String[] searchByTitle(String userInput) {
@@ -71,16 +68,14 @@ public class AccessBookApi {
 	}
 
 	public String[] accessSpecific(String type, String userInput) {
-		String clientId = "clientId";
-		String clientSecret = "clientSecret";
+		String clientId = "";
+		String clientSecret = "";
 		try {
 			String keyword = URLEncoder.encode(userInput, "UTF-8");
 			// 1) json
-			// String apiURL =
-			// "https://openapi.naver.com/v1/search/book_adv.json?"+type+"="+keyword+"&display="+RESULT_NUMBER+"&start=1";
+			// String apiURL = "https://openapi.naver.com/v1/search/book_adv.json?"+type+"="+keyword+"&display="+RESULT_NUMBER+"&start=1";
 			// 2) xml
-			String apiURL = "https://openapi.naver.com/v1/search/book_adv.xml?" + type + "=" + keyword + "&display="
-					+ RESULT_NUMBER + "&start=1";
+			String apiURL = "https://openapi.naver.com/v1/search/book_adv.xml?" + type + "=" + keyword + "&display=" + RESULT_NUMBER + "&start=1";
 			URL url = new URL(apiURL);
 			HttpURLConnection con = (HttpURLConnection) url.openConnection();
 			con.setRequestMethod("GET");
@@ -112,12 +107,11 @@ public class AccessBookApi {
 	}
 
 	public String[] accessSimple(String searchInput) {
-		String clientId = "clientId";
-		String clientSecret = "clientSecret";
+		String clientId = "";
+		String clientSecret = "";
 		try {
 			String keyword = URLEncoder.encode(searchInput, "UTF-8");
-			String apiURL = "https://openapi.naver.com/v1/search/book.xml?query=" + keyword + "&display="
-					+ RESULT_NUMBER + "&start=1";
+			String apiURL = "https://openapi.naver.com/v1/search/book.xml?query=" + keyword + "&display=" + RESULT_NUMBER + "&start=1";
 			URL url = new URL(apiURL);
 			HttpURLConnection con = (HttpURLConnection) url.openConnection();
 			con.setRequestMethod("GET");
@@ -136,7 +130,6 @@ public class AccessBookApi {
 				response.append(inputLine);
 			}
 			br.close();
-			// System.out.println(response.toString());
 			return parseXml(response.toString());
 		} catch (Exception e) {
 			System.out.println(e);
@@ -145,6 +138,7 @@ public class AccessBookApi {
 	}
 
 	private String[] parseXml(String response) {
+		String[] resultList = new String[RESULT_NUMBER];
 		try {
 			DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
 			DocumentBuilder builder = factory.newDocumentBuilder();
@@ -159,10 +153,9 @@ public class AccessBookApi {
 				} else {
 					if (book.getNodeType() == Node.ELEMENT_NODE) {
 						Element eBook = (Element) book;
-						System.out.println((i + 1) + "th book");
-						System.out.println("title : " + eBook.getElementsByTagName("title").item(0).getTextContent());
-						System.out.println(
-								"description : " + eBook.getElementsByTagName("description").item(0).getTextContent());
+						// System.out.println((i + 1) + "th book");
+						// System.out.println("title : " + eBook.getElementsByTagName("title").item(0).getTextContent());
+						// System.out.println("description : " + eBook.getElementsByTagName("description").item(0).getTextContent());
 						resultList[i] = eBook.getElementsByTagName("description").item(0).getTextContent();
 					}
 				}
@@ -174,6 +167,7 @@ public class AccessBookApi {
 	}
 
 	private String[] parseJson(String response) {
+		String[] resultList = new String[RESULT_NUMBER];
 		try {
 			JSONParser jsonParser = new JSONParser();
 			JSONObject jsonObj = (JSONObject) jsonParser.parse(response);
@@ -183,9 +177,9 @@ public class AccessBookApi {
 				if (tempObj == null) {
 					break;
 				} else {
-					System.out.println("\n" + (i + 1) + "th Book!");
-					System.out.println("title: " + tempObj.get("title"));
-					System.out.println("description: " + tempObj.get("description"));
+					// System.out.println("\n" + (i + 1) + "th Book!");
+					// System.out.println("title: " + tempObj.get("title"));
+					// System.out.println("description: " + tempObj.get("description"));
 					resultList[i] = (String) tempObj.get("description");
 				}
 			}
